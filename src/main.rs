@@ -42,21 +42,23 @@ fn main() {
 }
 
 fn handle_connection(mut stream: TcpStream) {
+    let prefix_webdir = "./public_html";
+
     let buf_reader = BufReader::new(&mut stream);
     let request_line = buf_reader.lines().next().unwrap().unwrap();
 
     let (status_line, filename) = if request_line == "GET / HTTP/1.1" {
-        ("HTTP/1.1 200 OK", "hello.html")
+        ("HTTP/1.1 200 OK", format!("{prefix_webdir}/hello.html"))
     } else {
-        ("HTTP/1.1 404 NOT FOUND", "404.html")
+        ("HTTP/1.1 404 NOT FOUND", format!("{prefix_webdir}/404.html"))
     };
 
     let contents: String;
 
-    match fs::read_to_string(filename) {
+    match fs::read_to_string(&filename) {
         Ok(c) => contents = c,
         Err(e) => {
-            println!("ERROR: failed to read file: {}. {}", filename, e);
+            println!("ERROR: failed to read file: {}. {}", &filename, e);
             process::exit(1)
         }
     }
